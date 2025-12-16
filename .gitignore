@@ -1,0 +1,119 @@
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+*.sln.iml
+
+# Visual Studio user-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Build Tools
+*.exe
+*.pdb
+
+# Rider IDE
+.idea/
+*.sln.iml
+*.swp
+*.swo
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Entity Framework
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.vs/
+.idea/
+
+# Mac
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+
+# User secrets
+secrets.json
+appsettings.local.json
+
+# Docker
+docker-compose.override.yml
+
+# Package manager lock files (optional - uncomment if desired)
+# packages.lock.json
+
+# Local development files
+launchSettings.json.local
+
+# Visual Studio Code extensions
+.vscode/extensions.json
+.vscode/settings.json.local
+
+# Analysis
+.sonarlint/
+
+# Coverage reports
+coverage/
+*.coverage
+*.coveragexml
+
+# npm (if used in the project)
+node_modules/
+npm-debug.log
+
+# IntelliJ IDEA
+*.iml
+.idea/
+
+# Gradle
+.gradle/
+build/
+
+# OS-specific files
+Thumbs.db
+*.exe
+*.pdb
+
+# Azure DevOps specific
+.tfignore
+
+# Terraform (if used for infrastructure)
+*.tfstate
+*.tfstate.*
+
+# Generated migration files backup
+*.bak
+
+# Any local configuration
+*.local.json

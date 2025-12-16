@@ -1,0 +1,50 @@
+services:
+
+  db:
+    image: postgres:16
+    container_name: faqassistant-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: faq_user
+      POSTGRES_PASSWORD: faq_password
+      POSTGRES_DB: faq_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - local_pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: faqassistant-pgadmin
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@faq.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+
+  faqassistant.api:
+    build:
+      context: .
+      dockerfile: FaqAssistant.Api/Dockerfile
+    container_name: faqassistant-api
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: >
+        Host=db;
+        Port=5432;
+        Database=faq_db;
+        Username=faq_user;
+        Password=faq_password
+
+volumes:
+  local_pgdata:
+  pgadmin-data:
