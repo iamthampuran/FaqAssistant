@@ -1,13 +1,7 @@
-﻿namespace FaqAssistant.Domain.Entities
-{
-    public class Category
-    {
-        public Guid Id { get; private set; }
-        public string Name { get; private set; } = null!;
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastUpdatedAt { get; set; }
-        public bool IsDeleted { get; set; }
+﻿namespace FaqAssistant.Domain.Entities;
 
-        public IEnumerable<Faq> Faqs { get; private set; } = null!;
-    }
+public class Category : EntityBase
+{
+    public string Name { get; private set; } = null!;
+    public IEnumerable<Faq> Faqs { get; private set; } = null!;
 }
