@@ -1,7 +1,9 @@
+using FaqAssistant.Application;
+using FaqAssistant.Infrastructure;
 using FaqAssistant.Infrastructure.Data;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using System;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +20,15 @@ try
             builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
+    builder.Services.AddApplicationServices();
+    builder.Services.AddInfrastructureServices();
+
 }
 catch (Exception ex)
 {
     Console.WriteLine("Error retrieving connection string: " + ex.Message);
 }
+
 
 var app = builder.Build();
 
