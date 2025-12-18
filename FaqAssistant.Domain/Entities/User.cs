@@ -6,5 +6,4 @@ public class User : EntityBase
     public string Email { get; set; } = null!;
     public string PasswordHash { get; set; } = null!;
     public IEnumerable<Faq> Faqs { get; set; } = null!;
-    public IEnumerable<Answer> Answers { get; set; } = null!;
 }

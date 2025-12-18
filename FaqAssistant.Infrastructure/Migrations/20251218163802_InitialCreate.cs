@@ -16,7 +16,10 @@ public partial class InitialCreate : Migration
             columns: table => new
             {
                 Id = table.Column<Guid>(type: "uuid", nullable: false),
-                Name = table.Column<string>(type: "text", nullable: false)
+                Name = table.Column<string>(type: "text", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
             },
             constraints: table =>
             {
@@ -28,7 +31,10 @@ public partial class InitialCreate : Migration
             columns: table => new
             {
                 Id = table.Column<Guid>(type: "uuid", nullable: false),
-                Name = table.Column<string>(type: "text", nullable: false)
+                Name = table.Column<string>(type: "text", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
             },
             constraints: table =>
             {
@@ -42,7 +48,10 @@ public partial class InitialCreate : Migration
                 Id = table.Column<Guid>(type: "uuid", nullable: false),
                 Username = table.Column<string>(type: "text", nullable: false),
                 Email = table.Column<string>(type: "text", nullable: false),
-                PasswordHash = table.Column<string>(type: "text", nullable: false)
+                PasswordHash = table.Column<string>(type: "text", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
             },
             constraints: table =>
             {
@@ -56,7 +65,12 @@ public partial class InitialCreate : Migration
                 Id = table.Column<Guid>(type: "uuid", nullable: false),
                 Question = table.Column<string>(type: "text", nullable: false),
                 CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
-                UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                Answer = table.Column<string>(type: "text", nullable: false),
+                Rating = table.Column<int>(type: "integer", nullable: false),
+                UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
             },
             constraints: table =>
             {
@@ -71,27 +85,6 @@ public partial class InitialCreate : Migration
                     name: "FK_Faqs_Users_UserId",
                     column: x => x.UserId,
                     principalTable: "Users",
-                    principalColumn: "Id",
-                    onDelete: ReferentialAction.Cascade);
-            });
-
-        migrationBuilder.CreateTable(
-            name: "Answers",
-            columns: table => new
-            {
-                Id = table.Column<Guid>(type: "uuid", nullable: false),
-                Content = table.Column<string>(type: "text", nullable: false),
-                FaqId = table.Column<Guid>(type: "uuid", nullable: false),
-                UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                Rating = table.Column<int>(type: "integer", nullable: false)
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Answers", x => x.Id);
-                table.ForeignKey(
-                    name: "FK_Answers_Faqs_FaqId",
-                    column: x => x.FaqId,
-                    principalTable: "Faqs",
                     principalColumn: "Id",
                     onDelete: ReferentialAction.Cascade);
             });
@@ -121,11 +114,6 @@ public partial class InitialCreate : Migration
             });
 
         migrationBuilder.CreateIndex(
-            name: "IX_Answers_FaqId",
-            table: "Answers",
-            column: "FaqId");
-
-        migrationBuilder.CreateIndex(
             name: "IX_Faqs_CategoryId",
             table: "Faqs",
             column: "CategoryId");
@@ -144,9 +132,6 @@ public partial class InitialCreate : Migration
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropTable(
-            name: "Answers");
-
         migrationBuilder.DropTable(
             name: "FaqTag");
 

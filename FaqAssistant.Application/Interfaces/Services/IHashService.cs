@@ -3,4 +3,6 @@
 public interface IHashService
 {
     string HashPassword(string password);
+    bool VerifyHashPassword(string password, string hash);
+
 }

@@ -11,7 +11,6 @@ namespace FaqAssistant.Infrastructure.Data
         public DbSet<Faq> Faqs => Set<Faq>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Tag> Tags => Set<Tag>();
-        public DbSet<Answer> Answers => Set<Answer>();
         public DbSet<User> Users => Set<User>();
     }
 }

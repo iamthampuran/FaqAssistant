@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FaqAssistant.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251216185539_AddedMiscellaneousFields")]
-    partial class AddedMiscellaneousFields
+    [Migration("20251218163802_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,43 +24,6 @@ namespace FaqAssistant.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("FaqAssistant.Domain.Entities.Answer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("FaqId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FaqId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Answers");
-                });
 
             modelBuilder.Entity("FaqAssistant.Domain.Entities.Category", b =>
                 {
@@ -92,6 +55,10 @@ namespace FaqAssistant.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
@@ -107,6 +74,9 @@ namespace FaqAssistant.Infrastructure.Migrations
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -191,21 +161,6 @@ namespace FaqAssistant.Infrastructure.Migrations
                     b.ToTable("FaqTag");
                 });
 
-            modelBuilder.Entity("FaqAssistant.Domain.Entities.Answer", b =>
-                {
-                    b.HasOne("FaqAssistant.Domain.Entities.Faq", null)
-                        .WithMany("Answers")
-                        .HasForeignKey("FaqId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FaqAssistant.Domain.Entities.User", null)
-                        .WithMany("Answers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FaqAssistant.Domain.Entities.Faq", b =>
                 {
                     b.HasOne("FaqAssistant.Domain.Entities.Category", "Category")
@@ -245,15 +200,8 @@ namespace FaqAssistant.Infrastructure.Migrations
                     b.Navigation("Faqs");
                 });
 
-            modelBuilder.Entity("FaqAssistant.Domain.Entities.Faq", b =>
-                {
-                    b.Navigation("Answers");
-                });
-
             modelBuilder.Entity("FaqAssistant.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Answers");
-
                     b.Navigation("Faqs");
                 });
 #pragma warning restore 612, 618

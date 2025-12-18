@@ -1,6 +1,5 @@
 ﻿using FaqAssistant.Application.Interfaces.Services;
 using Microsoft.Extensions.Configuration;
-using System.Security.Cryptography;
 
 namespace FaqAssistant.Infrastructure.Services;
 
@@ -18,16 +17,18 @@ public class HashService : IHashService
         {
             throw new InvalidOperationException("Password salt is not configured.");
         }
-        byte[] saltBytes = Convert.FromBase64String(salt);
-        // Hash the password with the salt using PBKDF2
-        byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, saltBytes, 10000, HashAlgorithmName.SHA256, 32);
+        return BCrypt.Net.BCrypt.HashPassword(password + salt);
+    }
 
-        // Combine salt and hash
-        byte[] hashBytes = new byte[48];
-        Array.Copy(saltBytes, 0, hashBytes, 0, 16);
-        Array.Copy(hash, 0, hashBytes, 16, 32);
+    public bool VerifyHashPassword(string password, string hash)
+    {
+        var salt = _configuration["Security:PasswordSalt"];
+        if (string.IsNullOrEmpty(salt))
+        {
+            throw new InvalidOperationException("Password salt is not configured.");
+        }
+        Console.WriteLine($"Received password - {password}, it's hash value - {HashPassword(password)} - actual hash - {hash}");
 
-        // Convert to base64 string for storage
-        return Convert.ToBase64String(hashBytes);
+        return BCrypt.Net.BCrypt.Verify(password + salt, hash);
     }
 }
