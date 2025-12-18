@@ -10,10 +10,10 @@ namespace FaqAssistant.Application.Features.User.Commands.CreateUser;
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Result<Guid>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IGenericRepository<UserDetails> _userRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IHashService _hashService;
 
-    public CreateUserCommandHandler(IUnitOfWork unitOfWork, IGenericRepository<UserDetails> userRepository, IHashService hashService)
+    public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUserRepository userRepository, IHashService hashService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));

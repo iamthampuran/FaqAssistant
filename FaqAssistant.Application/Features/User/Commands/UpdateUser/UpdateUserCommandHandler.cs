@@ -38,31 +38,29 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Resul
             return new Result<Guid>(false, "You are not authorized to update this user's details.");
         }
 
-        var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (user == null)
+        // Combine the queries to fetch the user and check for conflicts in one call
+        var userWithConflicts = await _userRepository.GetFirstAsync(
+            u => (u.Id == request.Id || u.Email == request.Email || u.Username == request.UserName) && !u.IsDeleted,
+            cancellationToken
+        );
+
+        if (userWithConflicts == null)
         {
             return new Result<Guid>(false, "User not found.");
         }
 
-        if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.UserName))
-        {
-            return new Result<Guid>(false, "At least one field (Email or UserName) must be provided for update.");
-        }
-
-        Expression<Func<UserDetails, bool>> predicate = (u => u.Email == request.Email || u.Username == request.UserName);
-        var existingUser = await _userRepository.GetFirstAsync(predicate, cancellationToken);
-
-        if (existingUser != null && existingUser.Id != request.Id)
+        if (userWithConflicts.Id != request.Id)
         {
             return new Result<Guid>(false, "A user with the same email or username already exists.");
         }
 
-        user.Email = request.Email ?? user.Email;
-        user.Username = request.UserName ?? user.Username;
-        user.LastUpdatedAt = DateTime.UtcNow;
+        // Update the user details
+        userWithConflicts.Email = request.Email ?? userWithConflicts.Email;
+        userWithConflicts.Username = request.UserName ?? userWithConflicts.Username;
+        userWithConflicts.LastUpdatedAt = DateTime.UtcNow;
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        // Simulate update logic
-        // In a real implementation, you would update the user entity and save changes to the database
+
         return new Result<Guid>(true, request.Id);
     }
 }
