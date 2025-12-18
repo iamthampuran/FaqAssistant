@@ -97,4 +97,9 @@ public class GenericRepository<T> : IGenericRepository<T>
     {
         return await _dbSet.FindAsync([id], cancellationToken);
     }
+
+    public async Task<IReadOnlyList<T>> GetAllAsync()
+    {
+        return await _dbSet.AsNoTracking().ToListAsync();
+    }
 }
