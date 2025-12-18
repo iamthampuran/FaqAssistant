@@ -18,6 +18,11 @@ public static class InfrastructureServiceRegistration
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IHashService, HashService>();
+        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
+        // Register HttpContextAccessor for CurrentUserService
+        services.AddHttpContextAccessor();
 
         return services;
     }

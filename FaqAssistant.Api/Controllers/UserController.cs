@@ -1,15 +1,15 @@
 ﻿using FaqAssistant.Application.Common;
-using FaqAssistant.Application.Features.User.Commands.CreateUser;
 using FaqAssistant.Application.Features.User.Commands.DeleteUser;
 using FaqAssistant.Application.Features.User.Commands.UpdateUser;
 using FaqAssistant.Application.Features.User.Queries.GetUserDetails;
 using FaqAssistant.Application.Features.User.Queries.GetUserDetailsById;
 using FaqAssistant.Application.Helpers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FaqAssistant.Api.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
@@ -19,17 +19,6 @@ public class UserController : ControllerBase
     public UserController(IMediator mediator)
     {
         _mediator = mediator;
-    }
-
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command)
-    {
-        var result = await _mediator.Send(command);
-        if (result.Success)
-        {
-            return Ok(result);
-        }
-        return BadRequest(result);
     }
 
     [HttpGet("{id}")]
