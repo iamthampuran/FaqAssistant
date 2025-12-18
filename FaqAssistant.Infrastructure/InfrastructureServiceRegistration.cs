@@ -14,9 +14,12 @@ public static class InfrastructureServiceRegistration
         // Register UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Register Generic Repository
+        // Register Repository
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ITagRepository, TagRepository>();
+
+        //register services
         services.AddScoped<IHashService, HashService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
