@@ -17,5 +17,7 @@ namespace FaqAssistant.Application.Interfaces.Repositories
         Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
 
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<T>> GetAllAsync();
+
     }
 }

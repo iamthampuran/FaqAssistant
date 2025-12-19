@@ -2,6 +2,6 @@
 
 public class Tag : EntityBase
 {
-    public string Name { get; private set; } = null!;
-    public IEnumerable<Faq> Faqs { get; private set; } = null!;
+    public string Name { get; set; } = null!;
+    public IEnumerable<Faq> Faqs { get;  set; } = null!;
 }

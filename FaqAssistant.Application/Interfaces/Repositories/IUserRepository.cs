@@ -7,7 +7,7 @@ namespace FaqAssistant.Application.Interfaces.Repositories;
 
 public interface IUserRepository : IGenericRepository<User>
 {
-    public Task<GetUserByIdResponse?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
-    public Task<PagedResult<GetUserDetailsQueryResponse>> GetUserDetailsAsync(int pageNumber, int pageSize, string? searchValue, CancellationToken cancellationToken = default);
+    public Task<GetUserDetailsByIdResponse?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
+    public Task<PagedResult<GetUserDetailsResponse>> GetUserDetailsAsync(int pageNumber, int pageSize, string? searchValue, CancellationToken cancellationToken = default);
 
 }

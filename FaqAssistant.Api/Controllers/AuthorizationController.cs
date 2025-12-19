@@ -21,7 +21,7 @@ public class AuthorizationController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success)
         {
-            return Ok(result);
+            return CreatedAtAction(nameof(Register), result.Data);
         }
         return BadRequest(result);
     }
@@ -32,8 +32,8 @@ public class AuthorizationController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success)
         {
-            return Ok(result);
+            return Ok(result.Data);
         }
-        return BadRequest(result);
+        return BadRequest(result.Message);
     }
 }

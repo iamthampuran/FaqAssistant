@@ -5,17 +5,17 @@ using MediatR;
 
 namespace FaqAssistant.Application.Features.User.Queries.GetUserDetails;
 
-public class GetUserDetailsQueryHandler : IRequestHandler<GetUserDetailsQuery, Result<PagedResult<GetUserDetailsQueryResponse>>>
+public class GetUserDetailsQueryHandler : IRequestHandler<GetUserDetailsQuery, Result<PagedResult<GetUserDetailsResponse>>>
 {
     private readonly IUserRepository _userRepository;
     public GetUserDetailsQueryHandler(IUserRepository userRepository)
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
     }
-    public async Task<Result<PagedResult<GetUserDetailsQueryResponse>>> Handle(GetUserDetailsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedResult<GetUserDetailsResponse>>> Handle(GetUserDetailsQuery request, CancellationToken cancellationToken)
     {
 
         var pagedUsers = await _userRepository.GetUserDetailsAsync(request.PageCount, request.PageSize, request.SearchValue, cancellationToken);
-        return new Result<PagedResult<GetUserDetailsQueryResponse>>(true, pagedUsers);
+        return new Result<PagedResult<GetUserDetailsResponse>>(true, pagedUsers);
     }
 }

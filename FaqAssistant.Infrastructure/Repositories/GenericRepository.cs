@@ -1,5 +1,6 @@
 ﻿using FaqAssistant.Application.Common;
 using FaqAssistant.Application.Interfaces.Repositories;
+using FaqAssistant.Domain.Entities;
 using FaqAssistant.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -7,8 +8,7 @@ using System.Linq.Expressions;
 
 namespace FaqAssistant.Infrastructure.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T>
-    where T : class
+public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
 {
     private readonly AppDbContext _dbContext;
     private readonly DbSet<T> _dbSet;
@@ -81,7 +81,7 @@ public class GenericRepository<T> : IGenericRepository<T>
 
         var totalCount = await query.CountAsync(cancellationToken);
 
-        var items = await query
+        var items = await query.Where(x => !x.IsDeleted)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -95,6 +95,11 @@ public class GenericRepository<T> : IGenericRepository<T>
 
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync([id], cancellationToken);
+        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<T>> GetAllAsync()
+    {
+        return await _dbSet.AsNoTracking().Where(x => !x.IsDeleted).ToListAsync();
     }
 }
