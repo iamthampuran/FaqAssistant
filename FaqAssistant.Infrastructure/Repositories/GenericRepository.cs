@@ -81,7 +81,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
 
         var totalCount = await query.CountAsync(cancellationToken);
 
-        var items = await query
+        var items = await query.Where(x => !x.IsDeleted)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -95,11 +95,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
 
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
     }
 
     public async Task<IReadOnlyList<T>> GetAllAsync()
     {
-        return await _dbSet.AsNoTracking().ToListAsync();
+        return await _dbSet.AsNoTracking().Where(x => !x.IsDeleted).ToListAsync();
     }
 }
