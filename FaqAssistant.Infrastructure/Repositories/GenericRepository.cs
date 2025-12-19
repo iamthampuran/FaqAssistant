@@ -10,8 +10,8 @@ namespace FaqAssistant.Infrastructure.Repositories;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
 {
-    private readonly AppDbContext _dbContext;
-    private readonly DbSet<T> _dbSet;
+    protected readonly AppDbContext _dbContext;
+    protected readonly DbSet<T> _dbSet;
 
     public GenericRepository(AppDbContext dbContext)
     {
@@ -25,15 +25,15 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<PagedResult<T>> GetPagedAsync(int pageNumber, int pageSize, 
-    Expression<Func<T, bool>> predicate, 
+    public async Task<PagedResult<T>> GetPagedAsync(int pageNumber, int pageSize,
+    Expression<Func<T, bool>> predicate,
     CancellationToken cancellationToken = default)
     {
         if (pageNumber < 1) pageNumber = 1;
         if (pageSize < 1) pageSize = 10;
         var query = _dbSet.AsNoTracking().Where(predicate);
         var totalCount = await query.CountAsync(cancellationToken);
-        var items =  await query
+        var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -101,5 +101,45 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
     public async Task<IReadOnlyList<T>> GetAllAsync()
     {
         return await _dbSet.AsNoTracking().Where(x => !x.IsDeleted).ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>>? predicate, List<Expression<Func<T, object>>>? includes, bool disableTracking = false, CancellationToken cancellationToken = default)
+    {
+
+        IQueryable<T> query = _dbContext.Set<T>();
+        if (disableTracking)
+            query = query.AsNoTracking();
+
+        if (includes != null)
+        {
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
+        }
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+
+    }
+
+    public async Task<T?> GetFirstAsync(Expression<Func<T, bool>>? predicate, List<Expression<Func<T, object>>>? includes, bool disableTracking = false, CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = _dbContext.Set<T>().IgnoreQueryFilters();
+
+        if (disableTracking)
+            query = query.AsNoTracking();
+
+        if (includes != null)
+        {
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
+        }
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+        return await query.FirstOrDefaultAsync(cancellationToken);
     }
 }

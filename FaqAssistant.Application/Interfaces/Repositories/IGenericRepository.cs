@@ -6,6 +6,11 @@ namespace FaqAssistant.Application.Interfaces.Repositories
     public interface IGenericRepository<T> where T : class
     {
         Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>>? predicate = null, List<Expression<Func<T, object>>>? includes = null, bool disableTracking = false,
+            CancellationToken cancellationToken = default);
+        Task<T?> GetFirstAsync(Expression<Func<T, bool>>? predicate = null, List<Expression<Func<T, object>>>? includes = null, bool disableTracking = false, CancellationToken cancellationToken = default);
+
         Task<PagedResult<T>> GetPagedAsync(
                 int pageNumber,
                 int pageSize,

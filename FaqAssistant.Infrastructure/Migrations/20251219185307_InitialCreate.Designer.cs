@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FaqAssistant.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251218163802_InitialCreate")]
+    [Migration("20251219185307_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -35,7 +35,9 @@ namespace FaqAssistant.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -46,7 +48,7 @@ namespace FaqAssistant.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("FaqAssistant.Domain.Entities.Faq", b =>
@@ -66,7 +68,9 @@ namespace FaqAssistant.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -87,7 +91,40 @@ namespace FaqAssistant.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Faqs");
+                    b.ToTable("Faqs", (string)null);
+                });
+
+            modelBuilder.Entity("FaqAssistant.Domain.Entities.FaqTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FaqId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TagId");
+
+                    b.HasIndex("FaqId", "TagId")
+                        .HasDatabaseName("IX_FaqTag_FaqId_TagId");
+
+                    b.ToTable("FaqTag", (string)null);
                 });
 
             modelBuilder.Entity("FaqAssistant.Domain.Entities.Tag", b =>
@@ -100,7 +137,9 @@ namespace FaqAssistant.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -111,7 +150,7 @@ namespace FaqAssistant.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("FaqAssistant.Domain.Entities.User", b =>
@@ -128,7 +167,9 @@ namespace FaqAssistant.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -143,22 +184,7 @@ namespace FaqAssistant.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("FaqTag", b =>
-                {
-                    b.Property<Guid>("FaqsId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TagsId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("FaqsId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("FaqTag");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("FaqAssistant.Domain.Entities.Faq", b =>
@@ -180,22 +206,36 @@ namespace FaqAssistant.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FaqTag", b =>
+            modelBuilder.Entity("FaqAssistant.Domain.Entities.FaqTag", b =>
                 {
-                    b.HasOne("FaqAssistant.Domain.Entities.Faq", null)
-                        .WithMany()
-                        .HasForeignKey("FaqsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("FaqAssistant.Domain.Entities.Faq", "Faq")
+                        .WithMany("Tags")
+                        .HasForeignKey("FaqId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FaqAssistant.Domain.Entities.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("FaqAssistant.Domain.Entities.Tag", "Tag")
+                        .WithMany("Faqs")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Faq");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("FaqAssistant.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("Faqs");
+                });
+
+            modelBuilder.Entity("FaqAssistant.Domain.Entities.Faq", b =>
+                {
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("FaqAssistant.Domain.Entities.Tag", b =>
                 {
                     b.Navigation("Faqs");
                 });

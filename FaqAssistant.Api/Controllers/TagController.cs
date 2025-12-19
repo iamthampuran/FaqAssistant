@@ -71,7 +71,7 @@ public class TagController : ControllerBase
         {
             return CreatedAtAction(nameof(CreateTag), new { id = result.Data }, result);
         }
-        return BadRequest(result);
+        return BadRequest(result.Message);
     }
 
     [HttpGet("{id}")]
