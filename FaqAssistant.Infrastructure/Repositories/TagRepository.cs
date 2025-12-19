@@ -1,5 +1,6 @@
 ﻿using FaqAssistant.Application.Common;
 using FaqAssistant.Application.Features.Tag.Queries.GetTagDetails;
+using FaqAssistant.Application.Features.Tag.Queries.GetTagDetailsById;
 using FaqAssistant.Application.Interfaces.Repositories;
 using FaqAssistant.Domain.Entities;
 using FaqAssistant.Infrastructure.Data;
@@ -15,7 +16,7 @@ public class TagRepository : GenericRepository<Tag>, ITagRepository
         _appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
     }
 
-    public async Task<PagedResult<GetTagDetailsQueryResponse>> GetTagDetailsAsync(
+    public async Task<PagedResult<GetTagDetailsResponse>> GetTagDetailsAsync(
         int pageNumber,
         int pageSize,
         string? searchValue,
@@ -34,13 +35,22 @@ public class TagRepository : GenericRepository<Tag>, ITagRepository
             .OrderBy(t => t.Name)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(t => new GetTagDetailsQueryResponse(t.Id, t.Name, t.CreatedAt))
+            .Select(t => new GetTagDetailsResponse(t.Id, t.Name, t.CreatedAt))
             .ToListAsync(cancellationToken);
 
-        return PagedResult<GetTagDetailsQueryResponse>.Create(
+        return PagedResult<GetTagDetailsResponse>.Create(
             tags,
             pageNumber,
             pageSize,
             totalCount);
+    }
+
+    public async Task<GetTagDetailsByIdResponse?> GetTagDetailsById(Guid tagId, CancellationToken cancellationToken)
+    {
+        return await _appDbContext.Tags.AsNoTracking()
+            .Where(t => t.Id == tagId && !t.IsDeleted)
+            .Select(t => new GetTagDetailsByIdResponse(t.Id, t.Name, t.CreatedAt))
+            .FirstOrDefaultAsync(cancellationToken);
+
     }
 }

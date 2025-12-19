@@ -17,14 +17,14 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         _appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
     }
 
-    public async Task<GetUserByIdResponse?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<GetUserDetailsByIdResponse?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _appDbContext.Users.AsNoTracking()
             .Where(u => u.Id == userId && !u.IsDeleted)
-            .Select(u => new GetUserByIdResponse(u.Id, u.Username, u.Email)).FirstOrDefaultAsync(cancellationToken);
+            .Select(u => new GetUserDetailsByIdResponse(u.Id, u.Username, u.Email)).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<PagedResult<GetUserDetailsQueryResponse>> GetUserDetailsAsync(
+    public async Task<PagedResult<GetUserDetailsResponse>> GetUserDetailsAsync(
     int pageNumber,
     int pageSize,
     string? searchValue,
@@ -53,14 +53,14 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .OrderBy(u => u.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(user => new GetUserDetailsQueryResponse(
+            .Select(user => new GetUserDetailsResponse(
                 user.Id,
                 user.Username,
                 user.Email,
                 user.CreatedAt))
             .ToListAsync(cancellationToken);
 
-        return PagedResult<GetUserDetailsQueryResponse>.Create(
+        return PagedResult<GetUserDetailsResponse>.Create(
             users,
             pageNumber,
             pageSize,
