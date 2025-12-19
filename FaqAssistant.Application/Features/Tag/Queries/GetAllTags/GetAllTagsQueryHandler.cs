@@ -22,8 +22,7 @@ public class GetAllTagsQueryHandler : IRequestHandler<GetAllTagsQuery, Result<IR
         var result = new Result<IReadOnlyList<GetAllTagsResponse>>
         {
             Data = response,
-            Success = true,
-            Message = "Tags retrieved successfully."
+            Success = true
         };
         return result;
     }
