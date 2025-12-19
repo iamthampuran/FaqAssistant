@@ -2,6 +2,9 @@ using FaqAssistant.Application.Common;
 using FaqAssistant.Application.Features.Category.Commands.CreateCategory;
 using FaqAssistant.Application.Features.Category.Commands.DeleteCategory;
 using FaqAssistant.Application.Features.Category.Commands.UpdateCategory;
+using FaqAssistant.Application.Features.Category.Queries.GetAllCategories;
+using FaqAssistant.Application.Features.Category.Queries.GetCategoryById;
+using FaqAssistant.Application.Features.Category.Queries.GetCategoryDetails;
 using FaqAssistant.Application.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -53,5 +56,33 @@ public class CategoryController : ControllerBase
         var command = new DeleteCategoryCommand { Id = id };
         var result = await _mediator.Send(command);
         return result.Success ? Ok(new Result<Guid>(true, id)) : BadRequest(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
+    {
+        var query = new GetCategoryByIdQuery(id);
+        var result = await _mediator.Send(query);
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+        return NotFound(result);
+    }
+
+    [HttpGet("details")]
+    public async Task<IActionResult> GetCategoryDetails([FromQuery] string? searchValue, [FromQuery] PageParameters pageParameters)
+    {
+        var query = new GetCategoryDetailsQuery(pageParameters.PageSize, pageParameters.PageNumber, searchValue);
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        var query = new GetAllCategoriesQuery();
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 }
