@@ -30,7 +30,7 @@ public class CategoryController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success)
         {
-            return CreatedAtAction(nameof(CreateCategory), new { id = result.Data }, result);
+            return CreatedAtAction(nameof(CreateCategory), result.Data);
         }
         return BadRequest(result);
     }

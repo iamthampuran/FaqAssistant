@@ -24,6 +24,17 @@ public class TagController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateTag([FromBody] CreateTagCommand command)
+    {
+        var result = await _mediator.Send(command);
+        if (result.Success)
+        {
+            return CreatedAtAction(nameof(CreateTag), result.Data);
+        }
+        return BadRequest(result.Message);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAllTags()
     {
@@ -61,17 +72,6 @@ public class TagController : ControllerBase
         var command = new DeleteTagCommand { Id = id };
         var result = await _mediator.Send(command);
         return result.Success ? Ok(new Result<Guid>(true, id)) : BadRequest(result);
-    }
-
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateTag([FromBody] CreateTagCommand command)
-    {
-        var result = await _mediator.Send(command);
-        if (result.Success)
-        {
-            return CreatedAtAction(nameof(CreateTag), new { id = result.Data }, result);
-        }
-        return BadRequest(result.Message);
     }
 
     [HttpGet("{id}")]

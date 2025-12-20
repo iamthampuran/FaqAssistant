@@ -27,7 +27,7 @@ public class FaqController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success)
         {
-            return CreatedAtAction(nameof(CreateFaq), new { id = result.Data }, result);
+            return CreatedAtAction(nameof(CreateFaq), result.Data);
         }
         return BadRequest(result.Message);
     }
