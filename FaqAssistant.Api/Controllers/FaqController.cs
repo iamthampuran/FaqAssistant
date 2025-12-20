@@ -56,4 +56,12 @@ public class FaqController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+
+    [HttpPost("askai/{faqId}")]
+    public async Task<IActionResult> AskAI([FromRoute] Guid faqId)
+    {
+        var command = new Application.Features.Faq.Commands.AskAI.AskAICommand(faqId);
+        var result = await _mediator.Send(command);
+        return result.Success ? Ok(result.Data) : BadRequest(result.Message);
+    }
 }
