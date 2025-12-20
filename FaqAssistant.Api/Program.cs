@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Threading.RateLimiting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -76,6 +77,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("AiRateLimit", context =>
+        RateLimitPartition.GetTokenBucketLimiter(
+            partitionKey: context.User?.Identity?.Name ?? "anonymous",
+            factory: _ => new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 10,                      // max tokens
+                TokensPerPeriod = 10,                 // tokens added each period
+                ReplenishmentPeriod = TimeSpan.FromMinutes(1), // how often tokens are restored
+                AutoReplenishment = true,             // automatic refill
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 2
+            })
+        );
+});
+
+
 
 var app = builder.Build();
 
