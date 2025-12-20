@@ -1,73 +1,145 @@
 ﻿using FaqAssistant.Application.Common;
 using FaqAssistant.Application.Interfaces.Repositories;
+using FaqAssistant.Domain.Entities;
 using FaqAssistant.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
-namespace FaqAssistant.Infrastructure.Repositories
+namespace FaqAssistant.Infrastructure.Repositories;
+
+public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
 {
-    public class GenericRepository<T> : IGenericRepository<T>
-        where T : class
+    protected readonly AppDbContext _dbContext;
+    protected readonly DbSet<T> _dbSet;
+
+    public GenericRepository(AppDbContext dbContext)
     {
-        private readonly AppDbContext _dbContext;
-        private readonly DbSet<T> _dbSet;
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _dbSet = _dbContext.Set<T>();
+    }
 
-        public GenericRepository(AppDbContext dbContext)
+    public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
+    {
+        await _dbSet.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<PagedResult<T>> GetPagedAsync(int pageNumber, int pageSize,
+    Expression<Func<T, bool>> predicate,
+    CancellationToken cancellationToken = default)
+    {
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageSize < 1) pageSize = 10;
+        var query = _dbSet.AsNoTracking().Where(predicate);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return PagedResult<T>.Create(
+            items,
+            pageNumber,
+            pageSize,
+            totalCount);
+    }
+
+    public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+    }
+
+    public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(predicate, cancellationToken);
+    }
+    public void DeleteAsync(T entity)
+    {
+        _dbContext.Set<T>().Remove(entity);
+    }
+
+    public void DeleteAsync(List<T> entities)
+    {
+        _dbContext.Set<T>().RemoveRange(entities);
+    }
+
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.FindAsync([id], cancellationToken) != null;
+    }
+
+    public async Task<PagedResult<T>> GetPagedAsync(
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken = default)
+    {
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageSize < 1) pageSize = 10;
+
+        var query = _dbSet.AsNoTracking();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query.Where(x => !x.IsDeleted)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return PagedResult<T>.Create(
+            items,
+            pageNumber,
+            pageSize,
+            totalCount);
+    }
+
+    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<T>> GetAllAsync()
+    {
+        return await _dbSet.AsNoTracking().Where(x => !x.IsDeleted).ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>>? predicate, List<Expression<Func<T, object>>>? includes, bool disableTracking = false, CancellationToken cancellationToken = default)
+    {
+
+        IQueryable<T> query = _dbContext.Set<T>();
+        if (disableTracking)
+            query = query.AsNoTracking();
+
+        if (includes != null)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _dbSet = _dbContext.Set<T>();
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
         }
 
-        public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
+        if (predicate != null)
         {
-            await _dbSet.AddAsync(entity, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            query = query.Where(predicate);
         }
 
-        public Task DeleteAsync(T entity)
+        return await query.ToListAsync(cancellationToken);
+
+    }
+
+    public async Task<T?> GetFirstAsync(Expression<Func<T, bool>>? predicate, List<Expression<Func<T, object>>>? includes, bool disableTracking = false, CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = _dbContext.Set<T>().IgnoreQueryFilters();
+
+        if (disableTracking)
+            query = query.AsNoTracking();
+
+        if (includes != null)
         {
-            throw new NotImplementedException();
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
         }
 
-        public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+        if (predicate != null)
         {
-            return await _dbSet.FindAsync([id], cancellationToken) != null;
+            query = query.Where(predicate);
         }
-
-        public async Task<PagedResult<T>> GetPagedAsync(
-        int pageNumber,
-        int pageSize,
-        CancellationToken cancellationToken = default)
-        {
-            if (pageNumber < 1) pageNumber = 1;
-            if (pageSize < 1) pageSize = 10;
-
-            var query = _dbSet.AsNoTracking();
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync(cancellationToken);
-
-            return PagedResult<T>.Create(
-                items,
-                pageNumber,
-                pageSize,
-                totalCount);
-        }
-
-
-        public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await _dbSet.FindAsync([id], cancellationToken);
-        }
-
-        public async Task UpdateAsync(T entity)
-        {
-            _dbSet.Update(entity);
-            await _dbContext.SaveChangesAsync();
-        }
+        return await query.FirstOrDefaultAsync(cancellationToken);
     }
 }

@@ -1,18 +1,14 @@
-﻿namespace FaqAssistant.Domain.Entities
-{
-    public class Faq
-    {
-        public Guid Id { get; private set; }
-        public string Question { get; private set; } = null!;
-        public Guid CategoryId { get; private set; }
-        public Guid UserId { get; private set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastUpdatedAt { get; set; }
-        public bool IsDeleted { get; set; }
-        public Category Category { get; private set; } = null!;
-        public User User { get; private set; } = null!;
-        public IEnumerable<Answer> Answers { get; private set; } = null!;
-        public IEnumerable<Tag> Tags { get; private set; } = null!;
+﻿namespace FaqAssistant.Domain.Entities;
 
-    }
+public class Faq : EntityBase
+{
+    public string Question { get; set; } = null!;
+    public Guid CategoryId { get; set; }
+    public string Answer { get; set; } = null!;
+    public Guid UserId { get; set; }
+    public virtual Category Category { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
+    public virtual ICollection<FaqTag> Tags { get; set; } = [];
+    public virtual ICollection<Rating> Ratings { get; set; } = [];
+
 }
