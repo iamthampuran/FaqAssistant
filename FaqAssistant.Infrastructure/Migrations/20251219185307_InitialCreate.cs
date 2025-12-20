@@ -19,7 +19,7 @@ public partial class InitialCreate : Migration
                 Name = table.Column<string>(type: "text", nullable: false),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
             },
             constraints: table =>
             {
@@ -34,7 +34,7 @@ public partial class InitialCreate : Migration
                 Name = table.Column<string>(type: "text", nullable: false),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
             },
             constraints: table =>
             {
@@ -51,7 +51,7 @@ public partial class InitialCreate : Migration
                 PasswordHash = table.Column<string>(type: "text", nullable: false),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
             },
             constraints: table =>
             {
@@ -70,7 +70,7 @@ public partial class InitialCreate : Migration
                 UserId = table.Column<Guid>(type: "uuid", nullable: false),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
             },
             constraints: table =>
             {
@@ -93,24 +93,28 @@ public partial class InitialCreate : Migration
             name: "FaqTag",
             columns: table => new
             {
-                FaqsId = table.Column<Guid>(type: "uuid", nullable: false),
-                TagsId = table.Column<Guid>(type: "uuid", nullable: false)
+                Id = table.Column<Guid>(type: "uuid", nullable: false),
+                FaqId = table.Column<Guid>(type: "uuid", nullable: false),
+                TagId = table.Column<Guid>(type: "uuid", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_FaqTag", x => new { x.FaqsId, x.TagsId });
+                table.PrimaryKey("PK_FaqTag", x => x.Id);
                 table.ForeignKey(
-                    name: "FK_FaqTag_Faqs_FaqsId",
-                    column: x => x.FaqsId,
+                    name: "FK_FaqTag_Faqs_FaqId",
+                    column: x => x.FaqId,
                     principalTable: "Faqs",
                     principalColumn: "Id",
-                    onDelete: ReferentialAction.Cascade);
+                    onDelete: ReferentialAction.Restrict);
                 table.ForeignKey(
-                    name: "FK_FaqTag_Tags_TagsId",
-                    column: x => x.TagsId,
+                    name: "FK_FaqTag_Tags_TagId",
+                    column: x => x.TagId,
                     principalTable: "Tags",
                     principalColumn: "Id",
-                    onDelete: ReferentialAction.Cascade);
+                    onDelete: ReferentialAction.Restrict);
             });
 
         migrationBuilder.CreateIndex(
@@ -124,9 +128,14 @@ public partial class InitialCreate : Migration
             column: "UserId");
 
         migrationBuilder.CreateIndex(
-            name: "IX_FaqTag_TagsId",
+            name: "IX_FaqTag_FaqId_TagId",
             table: "FaqTag",
-            column: "TagsId");
+            columns: new[] { "FaqId", "TagId" });
+
+        migrationBuilder.CreateIndex(
+            name: "IX_FaqTag_TagId",
+            table: "FaqTag",
+            column: "TagId");
     }
 
     /// <inheritdoc />

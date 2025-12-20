@@ -6,5 +6,4 @@
   <Project Path="FaqAssistant.Application/FaqAssistant.Application.csproj" />
   <Project Path="FaqAssistant.Domain/FaqAssistant.Domain.csproj" />
   <Project Path="FaqAssistant.Infrastructure/FaqAssistant.Infrastructure.csproj" />
-  <Project Path="FaqAssistant.UnitTests/FaqAssistant.UnitTests.csproj" />
 </Solution>

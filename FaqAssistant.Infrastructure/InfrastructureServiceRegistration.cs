@@ -19,6 +19,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IFaqRepository, FaqRepository>();
 
         //register services
         services.AddScoped<IHashService, HashService>();

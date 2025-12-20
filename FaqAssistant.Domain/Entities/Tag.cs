@@ -3,5 +3,5 @@
 public class Tag : EntityBase
 {
     public string Name { get; set; } = null!;
-    public IEnumerable<Faq> Faqs { get;  set; } = null!;
+    public virtual ICollection<FaqTag> Faqs { get;  set; } = [];
 }
