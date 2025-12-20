@@ -1,6 +1,7 @@
 ﻿using FaqAssistant.Application.Helpers;
 using FaqAssistant.Application.Interfaces.Common;
 using FaqAssistant.Application.Interfaces.Repositories;
+using FaqAssistant.Application.Interfaces.Services;
 using FaqAssistant.Domain.Entities;
 using MediatR;
 
@@ -10,17 +11,20 @@ public class UpdateFaqCommandHandler : IRequestHandler<UpdateFaqCommand, Result<
 {
     private readonly IFaqRepository _faqRepository;
     private readonly IUnitOfWork _unitOfWork;
-    
-    public UpdateFaqCommandHandler(IFaqRepository faqRepository, IUnitOfWork unitOfWork)
+    private readonly ICurrentUserService _currentUserService;
+
+    public UpdateFaqCommandHandler(IFaqRepository faqRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _faqRepository = faqRepository ?? throw new ArgumentNullException(nameof(faqRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
     }
 
     public async Task<Result<Guid>> Handle(UpdateFaqCommand command, CancellationToken cancellationToken)
     {
+        var loggedInUserId = _currentUserService.GetCurrentUserId();
         var faq = await _faqRepository.GetFirstAsync(
-            faq => faq.Id == command.Id, 
+            faq => faq.Id == command.Id && faq.UserId == loggedInUserId, 
             [faq => faq.Tags], 
             disableTracking: false, 
             cancellationToken: cancellationToken);

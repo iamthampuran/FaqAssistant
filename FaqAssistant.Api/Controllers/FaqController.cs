@@ -46,7 +46,7 @@ public class FaqController : ControllerBase
     {
         var command = new DeleteFaqCommand(id);
         var result = await _mediator.Send(command);
-        return result.Success ? Ok(result.Data) : BadRequest(result.Message);
+        return result.Success ? Ok(result.Data) : NotFound(result.Message);
     }
 
     [HttpGet("details")]
