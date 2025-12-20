@@ -33,7 +33,9 @@ public class FaqRepository : GenericRepository<Faq>, IFaqRepository
             .Include(faq => faq.User)
             .Include(faq => faq.Category)
             .Include(faq => faq.Tags)
-            .ThenInclude(ft => ft.Tag) as IQueryable<Faq>;
+            .ThenInclude(ft => ft.Tag)
+            .Include(faq => faq.Ratings) as IQueryable<Faq>;
+        
         if (categoryId.HasValue)
         {
             query = query.Where(faq => faq.CategoryId == categoryId.Value && !faq.Category.IsDeleted);
@@ -53,7 +55,7 @@ public class FaqRepository : GenericRepository<Faq>, IFaqRepository
         var result = await query.Select(faq => new GetFaqDetailsResponse(faq.Id, faq.Question, faq.Answer,
             new FaqCategoryDto(faq.Category.Id, faq.Category.Name),
             faq.Tags.Where(t => !t.IsDeleted).Select(t => new FaqTagsDto(t.Tag.Id, t.Tag.Name)).ToList(),
-            faq.CreatedAt, faq.Rating,
+            faq.CreatedAt, faq.Ratings.Where(r => !r.IsDeleted).Sum(r => r.IsUpvote ? 1 : -1),
             new Application.Features.Faq.Queries.GetFaqDetails.FaqUserDto(faq.User.Id, faq.User.Username)))
             .ToListAsync();
 
@@ -67,11 +69,14 @@ public class FaqRepository : GenericRepository<Faq>, IFaqRepository
             .Include(f => f.Category)
             .Include(f => f.Tags)
             .ThenInclude(ft => ft.Tag)
+            .Include(f => f.Ratings)
             .FirstOrDefaultAsync(f => f.Id == faqId && !f.IsDeleted);
+        
         if (faq == null)
         {
             throw new KeyNotFoundException($"FAQ with ID {faqId} not found.");
         }
+        
         return new GetFaqDetailsByIdResponse(
             faq.Id,
             faq.Question,
@@ -79,7 +84,7 @@ public class FaqRepository : GenericRepository<Faq>, IFaqRepository
             new Application.Features.Faq.Queries.GetFaqDetailsById.FaqCategoryDto(faq.Category.Id, faq.Category.Name),
             faq.Tags.Where(t => !t.IsDeleted).Select(t => new Application.Features.Faq.Queries.GetFaqDetailsById.FaqTagsDto(t.Tag.Id, t.Tag.Name)).ToList(),
             faq.CreatedAt,
-            faq.Rating,
+            faq.Ratings.Where(r => !r.IsDeleted).Sum(r => r.IsUpvote ? 1 : -1),
             new Application.Features.Faq.Queries.GetFaqDetailsById.FaqUserDto(faq.User.Id, faq.User.Username)
         );
     }

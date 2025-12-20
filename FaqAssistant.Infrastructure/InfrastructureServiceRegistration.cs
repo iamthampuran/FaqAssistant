@@ -25,9 +25,13 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IHashService, HashService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        
+        services.AddSingleton<HttpClient>();
+        services.AddScoped<IAskAIService, AskAIService>();
+
         // Register HttpContextAccessor for CurrentUserService
         services.AddHttpContextAccessor();
+
+        services.AddMemoryCache();
 
         return services;
     }

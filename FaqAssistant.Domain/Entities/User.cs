@@ -6,4 +6,5 @@ public class User : EntityBase
     public string Email { get; set; } = null!;
     public string PasswordHash { get; set; } = null!;
     public virtual IEnumerable<Faq> Faqs { get; set; } = null!;
+    public virtual IEnumerable<Rating> Ratings { get; set; } = null!;
 }

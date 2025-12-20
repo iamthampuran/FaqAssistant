@@ -71,7 +71,17 @@ public class CreateFaqCommandHandler : IRequestHandler<CreateFaqCommand, Result<
             Answer = request.Answer,
             UserId = request.UserId,
             CategoryId = request.CategoryId,
-            Rating = 0, // Default rating
+            CreatedAt = DateTime.UtcNow,
+            LastUpdatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        };
+
+        var ratings = new Domain.Entities.Rating
+        {
+            Id = Guid.NewGuid(),
+            FaqId = newFaq.Id,
+            UserId = request.UserId,
+            IsUpvote = true,
             CreatedAt = DateTime.UtcNow,
             LastUpdatedAt = DateTime.UtcNow,
             IsDeleted = false

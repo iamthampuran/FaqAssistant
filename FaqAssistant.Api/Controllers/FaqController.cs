@@ -2,6 +2,7 @@ using FaqAssistant.Application.Common;
 using FaqAssistant.Application.Features.Faq.Commands.CreateFaq;
 using FaqAssistant.Application.Features.Faq.Commands.DeleteFaq;
 using FaqAssistant.Application.Features.Faq.Commands.UpdateFaq;
+using FaqAssistant.Application.Features.Faq.Commands.UpdateRating;
 using FaqAssistant.Application.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +28,7 @@ public class FaqController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success)
         {
-            return CreatedAtAction(nameof(CreateFaq), new { id = result.Data }, result);
+            return CreatedAtAction(nameof(CreateFaq), result.Data);
         }
         return BadRequest(result.Message);
     }
@@ -36,7 +37,7 @@ public class FaqController : ControllerBase
     public async Task<IActionResult> UpdateFaq([FromRoute] Guid id, [FromBody] UpdateFaqCommand command)
     {
         if (id != command.Id)
-            return BadRequest("UserId mismatch");
+            return BadRequest("Faq Id mismatch");
         var result = await _mediator.Send(command);
         return result.Success ? Ok(result.Data) : NotFound(result.Message); 
     }
@@ -46,7 +47,7 @@ public class FaqController : ControllerBase
     {
         var command = new DeleteFaqCommand(id);
         var result = await _mediator.Send(command);
-        return result.Success ? Ok(result.Data) : BadRequest(result.Message);
+        return result.Success ? Ok(result.Data) : NotFound(result.Message);
     }
 
     [HttpGet("details")]
@@ -55,5 +56,22 @@ public class FaqController : ControllerBase
         var query = new Application.Features.Faq.Queries.GetFaqDetails.GetFaqDetailsQuery(pageParameters, categoryId, tagId);
         var result = await _mediator.Send(query);
         return Ok(result);
+    }
+
+    [HttpPost("askai/{faqId}")]
+    public async Task<IActionResult> AskAI([FromRoute] Guid faqId)
+    {
+        var command = new Application.Features.Faq.Commands.AskAI.AskAICommand(faqId);
+        var result = await _mediator.Send(command);
+        return result.Success ? Ok(result.Data) : BadRequest(result.Message);
+    }
+
+    [HttpPatch("rate/{faqId}")]
+    public async Task<IActionResult> UpdateRating([FromRoute] Guid faqId, [FromBody] UpdateRatingCommand command)
+    {
+        if (faqId != command.Id)
+            return BadRequest("Faq Id mismatch");
+        var result = await _mediator.Send(command);
+        return result.Success ? Ok(result.Data) : NotFound(result.Message);
     }
 }

@@ -14,6 +14,7 @@ namespace FaqAssistant.Infrastructure.Data
         public DbSet<Tag> Tags => Set<Tag>();
         public DbSet<User> Users => Set<User>();
         public DbSet<FaqTag> FaqTags => Set<FaqTag>();
+        public DbSet<Rating> Ratings => Set<Rating>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,9 +31,6 @@ namespace FaqAssistant.Infrastructure.Data
                     .IsRequired();
                 
                 entity.Property(f => f.Answer)
-                    .IsRequired();
-                
-                entity.Property(f => f.Rating)
                     .IsRequired();
                 
                 entity.Property(f => f.CategoryId)
@@ -64,6 +62,11 @@ namespace FaqAssistant.Infrastructure.Data
                 entity.HasMany(f => f.Tags)
                     .WithOne(ft => ft.Faq)
                     .HasForeignKey(ft => ft.FaqId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(f => f.Ratings)
+                    .WithOne(r => r.Faq)
+                    .HasForeignKey(r => r.FaqId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -184,6 +187,46 @@ namespace FaqAssistant.Infrastructure.Data
                     .WithMany(t => t.Faqs)
                     .HasForeignKey(ft => ft.TagId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure Rating entity
+            modelBuilder.Entity<Rating>(entity =>
+            {
+                entity.ToTable("Ratings");
+                entity.HasKey(r => r.Id);
+
+                entity.Property(r => r.FaqId)
+                    .IsRequired();
+
+                entity.Property(r => r.UserId)
+                    .IsRequired();
+
+                entity.Property(r => r.IsUpvote)
+                    .IsRequired();
+
+                entity.Property(r => r.CreatedAt)
+                    .IsRequired();
+
+                entity.Property(r => r.LastUpdatedAt)
+                    .IsRequired();
+
+                entity.Property(r => r.IsDeleted)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                // Add composite index for performance
+                entity.HasIndex(r => new { r.FaqId, r.UserId })
+                    .HasDatabaseName("IX_Rating_FaqId_UserId");
+
+                entity.HasOne(r => r.Faq)
+                    .WithMany(f => f.Ratings)
+                    .HasForeignKey(r => r.FaqId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.User)
+                    .WithMany(u => u.Ratings)
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
